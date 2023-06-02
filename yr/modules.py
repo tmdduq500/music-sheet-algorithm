@@ -111,7 +111,7 @@ def recognition(image, staves, objects):
         direction = obj[3]
         (x, y, w, h, area) = stats
         staff = staves[line * 5: (line + 1) * 5]
-        ts, temp_key = rs.recognize_key(image, staff, stats)
+        ts, key = rs.recognize_key(image, staff, stats)
         
         if ts:
             fs.put_text(image, key, (x,y+h+fs.weighted(20)))#20->표시하기 좋음
@@ -121,5 +121,5 @@ def recognition(image, staves, objects):
         cv2.rectangle(image, (x, y, w, h), (255, 0, 0), 1)
         fs.put_text(image, i, (x, y - fs.weighted(20)))
 
-    return image, beats, pitches
+    return image, key, beats, pitches
     
