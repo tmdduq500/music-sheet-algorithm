@@ -1,1 +1,1 @@
-# music-sheet-algoritm
+# music-sheet-algorithm
