@@ -15,7 +15,10 @@ def recognize_key(image, staves, stats):
         fs.weighted(45) >= h >= fs.weighted(35)  # 높이 조건
     )
     # 조표 필요 없음
-    return False
+    if ts_conditions:
+        return True, 1
+    else:  
+        return False, 0
 
 #음표 인식 함수
 def recognize_note(image, staff, stats, stems, direction):

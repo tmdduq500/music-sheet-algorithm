@@ -19,17 +19,18 @@ import modules
 문제 발생 : 인식과정 7.을 하며 이전에 했던 recognize_key 함수를 사용해야하나 에러가 발생함
 ->recognition_modules의 recognize_key 함수에서 조표 관련 삭제
 -> modules에서 recognition함수 수정(주석으로 표기되어있음)/return에서 key(조표)삭제-> main에서도 삭제
-
+-> key값을 1로 정함
 image_0 = image
 image_1 = masked_image
 image_2 = removed_image
 image_3 = normalized_image
 image_4 = object_image
 image_5 = analyzed_image
+image_6 = recognized_image
 """
 
 #이미지 불러오기
-image=cv2.imread("C:/music-sheet-algorithm/yr/image/drum_sheet(1).jpg", cv2.IMREAD_ANYCOLOR)
+image=cv2.imread("C:/music-sheet-algoritm/yr/image/drum_1.jpg", cv2.IMREAD_ANYCOLOR)
 
 #전처리 1. 보표 영역 추출 및 그 외 노이즈 제거-modules-fs
 masked_image = modules.remove_noise(image)
@@ -48,7 +49,7 @@ analyzed_image, objects = modules.object_analysis(obj_image, objects)
 
 
 #객체 인식 6. 인식 과정
-recognized_image, beats, pitches = modules.recognition(analyzed_image, staves, objects)
+recognized_image, key, beats, pitches = modules.recognition(analyzed_image, staves, objects)
 #조표 버전= recognized_image, key, beats, pitches = modules.recognition(analyzed_image, staves, objects)  
 
 #이미지 띄우기
