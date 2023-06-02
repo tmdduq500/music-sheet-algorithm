@@ -49,4 +49,18 @@ def recognize_note_head(image, stem, direction):
 
     cv2.rectangle(image, (area_left, area_top, area_right - area_left, area_bot - area_top), (255, 0, 0), 1)
 
+    cnt = 0  # cnt = 끊기지 않고 이어져 있는 선의 개수를 셈
+    cnt_max = 0  # cnt_max = cnt 중 가장 큰 값
+    pixel_cnt = fs.count_rect_pixels(image, (area_left, area_top, area_right - area_left, area_bot - area_top))
+
+    for row in range(area_top, area_bot):
+        end, pixels = fs.get_line(image, fs.HORIZONTAL, row, area_left, area_right, 5)
+        if pixels:
+            cnt += 1
+            cnt_max = max(cnt_max, pixels)
+
+    fs.put_text(image, cnt, (x - fs.weighted(10), y + h + fs.weighted(30)))
+    fs.put_text(image, cnt_max, (x - fs.weighted(10), y + h + fs.weighted(60)))
+    fs.put_text(image, pixel_cnt, (x - fs.weighted(10), y + h + fs.weighted(90)))
+
     pass

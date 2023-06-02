@@ -75,7 +75,7 @@ def object_detection(image, staves):
     cnt, labels, stats, centroids = cv2.connectedComponentsWithStats(closing_image)  # 모든 객체 검출하기
     for i in range(1, cnt):
         (x, y, w, h, area) = stats[i]
-        if w >= fs.weighted(5) and h >= fs.weighted(5):  # 악보의 구성요소가 되기 위한 넓이, 높이 조건
+        if w >= fs.weighted(15) and h >= fs.weighted(15):  # 악보의 구성요소가 되기 위한 넓이, 높이 조건
             center = fs.get_center(y, h)
             for line in range(lines):
                 area_top = staves[line * 5] - fs.weighted(20)  # 위치 조건 (상단)
