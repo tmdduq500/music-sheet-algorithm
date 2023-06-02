@@ -47,7 +47,6 @@ obj_image, objects = modules.object_detection(normalized_image, staves)
 #객체 분석 5. 객체 분석 과정
 analyzed_image, objects = modules.object_analysis(obj_image, objects)
 
-
 #객체 인식 6. 인식 과정
 recognized_image, key, beats, pitches = modules.recognition(analyzed_image, staves, objects)
 #조표 버전= recognized_image, key, beats, pitches = modules.recognition(analyzed_image, staves, objects)  

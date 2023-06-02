@@ -3,8 +3,6 @@ import cv2
 import numpy as np
 import functions as fs
 
-
-
 def recognize_key(image, staves, stats):
     (x, y, w, h, area) = stats
     ts_conditions = (
