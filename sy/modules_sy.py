@@ -75,7 +75,7 @@ def object_detection(image, staves):
     cnt, labels, stats, centroids = cv2.connectedComponentsWithStats(closing_image)  # 모든 객체 검출하기
     for i in range(1, cnt):
         (x, y, w, h, area) = stats[i]
-        if w >= fs.weighted(10) and h >= fs.weighted(20):  # 악보의 구성요소가 되기 위한 넓이, 높이 조건
+        if w >= fs.weighted(10) and h >= fs.weighted(5):  # 악보의 구성요소가 되기 위한 넓이, 높이 조건
             center = fs.get_center(y, h)
             for line in range(lines):
                 area_top = staves[line * 5] - fs.weighted(20)  # 위치 조건 (상단)
@@ -131,7 +131,15 @@ def recognition(image, staves, objects):
             for pitch in notes[1]:
                 pitches.append(pitch)
         else:
-                rs.recognize_rest(image, staff, stats)
+            rest = rs.recognize_rest(image, staff, stats)
+            if rest:
+                beats.append(rest)
+                pitches.append(-1)
+            else:
+                whole_note, pitch = rs.recognize_whole_note(image, staff, stats)
+                if whole_note:
+                    beats.append(whole_note)
+                    pitches.append(pitch)
                 
         cv2.rectangle(image, (x, y, w, h), (255, 0, 0), 1)
         fs.put_text(image, i, (x, y - fs.weighted(20)))
