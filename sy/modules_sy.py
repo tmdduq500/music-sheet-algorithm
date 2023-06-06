@@ -28,12 +28,11 @@ def remove_staves(image):
         pixels = 0
         for col in range(width):
             pixels += (image[row][col] == 255)  # 한 행에 존재하는 흰색 픽셀의 개수를 셈
-        if pixels >= width * 0.5:  # 이미지 넓이의 50% 이상이라면
+        if pixels >= width * 0.6:  # 이미지 넓이의 50% 이상이라면
             if len(staves) == 0 or abs(staves[-1][0] + staves[-1][1] - row) > 1:  # 첫 오선이거나 이전에 검출된 오선과 다른 오선
                 staves.append([row, 0])  # 오선 추가 [오선의 y 좌표][오선 높이]
             else:  # 이전에 검출된 오선과 같은 오선
                 staves[-1][1] += 1  # 높이 업데이트
-
     for staff in range(len(staves)):
         top_pixel = staves[staff][0]  # 오선의 최상단 y 좌표
         bot_pixel = staves[staff][0] + staves[staff][1]  # 오선의 최하단 y 좌표 (오선의 최상단 y 좌표 + 오선 높이)
@@ -75,7 +74,7 @@ def object_detection(image, staves):
     cnt, labels, stats, centroids = cv2.connectedComponentsWithStats(closing_image)  # 모든 객체 검출하기
     for i in range(1, cnt):
         (x, y, w, h, area) = stats[i]
-        if w >= fs.weighted(10) and h >= fs.weighted(5):  # 악보의 구성요소가 되기 위한 넓이, 높이 조건
+        if w >= fs.weighted(10) and h >= fs.weighted(15):  # 악보의 구성요소가 되기 위한 넓이, 높이 조건
             center = fs.get_center(y, h)
             for line in range(lines):
                 area_top = staves[line * 5] - fs.weighted(20)  # 위치 조건 (상단)
@@ -91,15 +90,20 @@ def object_detection(image, staves):
 def object_analysis(image, objects):
     for obj in objects:
         stats = obj[1]
-        stems = fs.stem_detection(image, stats, 30)  # 객체 내의 모든 직선들을 검출함
+        stems = fs.stem_detection(image, stats, 15)  # 객체 내의 모든 직선들을 검출함
         direction = None
         if len(stems) > 0:  # 직선이 1개 이상 존재함
-            if stems[0][0] - stats[0] >= fs.weighted(3):  # 직선이 나중에 발견되면
+            if stems[0][0] - stats[0] >= fs.weighted(5):  # 직선이 나중에 발견되면
                 direction = True  # 정 방향 음표
             else:  # 직선이 일찍 발견되면
                 direction = False  # 역 방향 음표
         obj.append(stems)  # 객체 리스트에 직선 리스트를 추가
         obj.append(direction)  # 객체 리스트에 음표 방향을 추가
+
+    for obj in objects:
+        (x, y, w, h, area) = obj[1]
+        if len(obj[2]):
+            fs.put_text(image, len(obj[2]), (x, y + h + 20))
 
     return image, objects
 
@@ -124,23 +128,8 @@ def recognition(image, staves, objects):
         # 박자표 있으면 1 표시
         # if ts:
         #     fs.put_text(image, key, (x, y + h + fs.weighted(20)))
-        notes = rs.recognize_note(image, staff, stats, stems, direction)
-        if len(notes[0]):
-            for beat in notes[0]:
-                beats.append(beat)
-            for pitch in notes[1]:
-                pitches.append(pitch)
-        else:
-            rest = rs.recognize_rest(image, staff, stats)
-            if rest:
-                beats.append(rest)
-                pitches.append(-1)
-            else:
-                whole_note, pitch = rs.recognize_whole_note(image, staff, stats)
-                if whole_note:
-                    beats.append(whole_note)
-                    pitches.append(pitch)
-                
+        rs.recognize_note(image, staff, stats, stems, direction)
+
         cv2.rectangle(image, (x, y, w, h), (255, 0, 0), 1)
         fs.put_text(image, i, (x, y - fs.weighted(20)))
 

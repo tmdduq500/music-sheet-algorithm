@@ -6,7 +6,7 @@ import functions_sy as fs
 import modules_sy as modules_sy
 
 #이미지 불러오기
-image=cv2.imread(r"D:\music-sheet-algoritm\sy\music_sheet_jpg\1.jpg", cv2.IMREAD_ANYCOLOR)
+image=cv2.imread(r"D:\music-sheet-algoritm\sy\music_sheet_jpg\7.jpg", cv2.IMREAD_ANYCOLOR)
 
 #전처리 1. 보표 영역 추출 및 그 외 노이즈 제거
 masked_image = modules_sy.remove_noise(image)
@@ -27,6 +27,6 @@ obj_analysis_image, objects = modules_sy.object_analysis(obj_detection_image, ob
 obj_recognition_image, key, beats, pitches = modules_sy.recognition(obj_analysis_image, staves, objects)
 
 #이미지 띄우기
-cv2.imshow('image', obj_recognition_image)
+cv2.imshow('image', obj_analysis_image)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
