@@ -74,25 +74,25 @@ def object_detection(image, staves):
     cnt, labels, stats, centroids = cv2.connectedComponentsWithStats(closing_image)  # 모든 객체 검출하기
     for i in range(1, cnt):
         (x, y, w, h, area) = stats[i]
-        if w >= fs.weighted(10) and h >= fs.weighted(15):  # 악보의 구성요소가 되기 위한 넓이, 높이 조건
+        if w >= fs.weighted(10) and h >= fs.weighted(10):  # 악보의 구성요소가 되기 위한 넓이, 높이 조건
             center = fs.get_center(y, h)
             for line in range(lines):
-                area_top = staves[line * 5] - fs.weighted(20)  # 위치 조건 (상단)
-                area_bot = staves[(line + 1) * 5 - 1] + fs.weighted(20)  # 위치 조건 (하단)
+                area_top = staves[line * 5] - fs.weighted(25)  # 위치 조건 (상단)
+                area_bot = staves[(line + 1) * 5 - 1] + fs.weighted(25)  # 위치 조건 (하단)
                 if area_top <= center <= area_bot:
                     objects.append([line, (x, y, w, h, area)])  # 객체 리스트에 보표 번호와 객체의 정보(위치, 크기)를 추가
 
     objects.sort()  # 보표 번호 → x 좌표 순으로 오름차순 정렬
-
+ 
     return image, objects
 
 # 객체 분석
 def object_analysis(image, objects):
     for obj in objects:
         stats = obj[1]
-        stems = fs.stem_detection(image, stats, 15)  # 객체 내의 모든 직선들을 검출함
+        stems = fs.stem_detection(image, stats, 25)  # 객체 내의 모든 직선들을 검출함
         direction = None
-        if len(stems) > 0:  # 직선이 1개 이상 존재함
+        if len(stems) > 0 :  # 직선이 1개 이상 존재함
             if stems[0][0] - stats[0] >= fs.weighted(5):  # 직선이 나중에 발견되면
                 direction = True  # 정 방향 음표
             else:  # 직선이 일찍 발견되면
@@ -100,17 +100,24 @@ def object_analysis(image, objects):
         obj.append(stems)  # 객체 리스트에 직선 리스트를 추가
         obj.append(direction)  # 객체 리스트에 음표 방향을 추가
 
-    for obj in objects:
-        (x, y, w, h, area) = obj[1]
-        if len(obj[2]):
-            fs.put_text(image, len(obj[2]), (x, y + h + 20))
+        """역 방향 음표에 사각형 그리기(검출 확인용)"""
+        # if direction == False:  # direction이 False인 경우에만 사각형 그리기
+        #     x, y, w, h, number = stats  # 객체의 위치 정보
+        #     cv2.rectangle(image, (x, y), (x + w, y + h), (125, 125, 0), 2)  # 파란색 사각형 그리기
+    
 
+    # 기둥에 사각형 그리기(직선 검출 확인)
+    # for obj in objects:
+    #     stems = obj[2]  # 검출된 기둥 리스트
+    #     for stem in stems:
+    #         x, y, w, h = stem  # 기둥의 좌표와 크기
+    #         cv2.rectangle(image, (x, y), (x + w, y + h), (125, 125, 0), 3)  # 기둥에 네모를 그림
+            
     return image, objects
 
 
 def recognition(image, staves, objects):
     key = 0
-
     beats = []  # 박자 리스트
     pitches = []  # 음이름 리스트
 
@@ -122,13 +129,29 @@ def recognition(image, staves, objects):
         direction = obj[3]
         (x, y, w, h, area) = stats
         staff = staves[line * 5: (line + 1) * 5]
-
+        
         ts, key = rs.recognize_key(image, staff, stats)
         
-        # 박자표 있으면 1 표시
-        # if ts:
-        #     fs.put_text(image, key, (x, y + h + fs.weighted(20)))
-        rs.recognize_note(image, staff, stats, stems, direction)
+        # 박자표 있으면 100 표시
+        if ts:
+            fs.put_text(image, key, (x, y + h + fs.weighted(20)))
+
+        notes = rs.recognize_note(image, staff, stats, stems, direction)
+        if len(notes[0]):
+            for beat in notes[0]:
+                beats.append(beat)
+            for pitch in notes[1]:
+                pitches.append(pitch)
+        else:
+            rest = rs.recognize_rest(image, staff, stats)
+            if rest:
+                beats.append(rest)
+                pitches.append(-1)
+            else:
+                whole_note, pitch = rs.recognize_whole_note(image, staff, stats)
+                if whole_note:
+                    beats.append(whole_note)
+                    pitches.append(pitch)
 
         cv2.rectangle(image, (x, y, w, h), (255, 0, 0), 1)
         fs.put_text(image, i, (x, y - fs.weighted(20)))
