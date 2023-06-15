@@ -111,6 +111,7 @@ def recognition(image, staves, objects):
         direction = obj[3]
         (x, y, w, h, area) = stats
         staff = staves[line * 5: (line + 1) * 5]
+        """음표(음정) 이전 작업
         ts, key = rs.recognize_key(image, staff, stats)
         
         if ts:
@@ -121,6 +122,16 @@ def recognition(image, staves, objects):
         cv2.rectangle(image, (x, y, w, h), (255, 0, 0), 1)
         #음표에 번호 부여
         fs.put_text(image, i, (x, y - fs.weighted(20)))
+        """
+        notes = rs.recognize_note(image, staff, stats, stems, direction)
+        if len(notes[0]):
+            for beat in notes[0]:
+                beats.append(beat)
+            for pitch in notes[1]:
+                pitches.append(pitch)
 
+        cv2.rectangle(image, (x, y, w, h), (255, 0, 0), 1)
+        fs.put_text(image, i, (x, y - fs.weighted(20)))
+        
     return image, key, beats, pitches
     

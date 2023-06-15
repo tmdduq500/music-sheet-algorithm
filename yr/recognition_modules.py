@@ -60,9 +60,17 @@ def recognize_note(image, staff, stats, stems, direction):
 
                 for j in range(len(note_classification)):
                     if note_classification[j][0]:
+                        """
+                        음표(점) 인식
                         note = note_classification[j][1]
                         notes.append(note)
                         fs.put_text(image, note, (stem[0] - fs.weighted(10), stem[1] + stem[3] + fs.weighted(30)))
+                        """
+                        #음표(음정) 
+                        note = note_classification[j][1]
+                        pitch = recognize_pitch(image, staff, head_center)
+                        notes.append(note)
+                        pitches.append(pitch)
                         break
 
     return notes, pitches
@@ -148,3 +156,13 @@ def recognize_note_dot(image, stem, direction, tail_cnt, stems_cnt):
         return pixels >= fs.weighted(threshold[tail_cnt])
     else:
         return pixels >= fs.weighted(threshold[0])
+    
+#음표(음정)
+#오선에 가상 좌표
+def recognize_pitch(image, staff, head_center):
+    pitch_lines = [staff[4] + fs.weighted(30) - fs.weighted(5) * i for i in range(21)]
+
+    for i in range(len(pitch_lines)):
+        line = pitch_lines[i]
+        if line + fs.weighted(2) >= head_center >= line - fs.weighted(2):
+            return i
