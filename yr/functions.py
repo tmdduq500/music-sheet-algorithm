@@ -71,3 +71,15 @@ def count_rect_pixels(image, rect):
             if image[row][col] == 255:
                 pixels += 1
     return pixels
+
+#픽셀이 존재하는 부분이 몇번 등장하는지 탐색하는 부분
+def count_pixels_part(image, area_top, area_bot, area_col):
+    cnt = 0
+    flag = False
+    for row in range(area_top, area_bot):
+        if not flag and image[row][area_col] == 255:
+            flag = True
+            cnt += 1
+        elif flag and image[row][area_col] == 0:
+            flag = False
+    return cnt

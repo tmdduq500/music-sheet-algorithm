@@ -117,8 +117,9 @@ def recognition(image, staves, objects):
             fs.put_text(image, key, (x,y+h+fs.weighted(20)))#20->표시하기 좋음
         
         rs.recognize_note(image, staff, stats, stems, direction)
-        
+        #음표에 박스 그리기
         cv2.rectangle(image, (x, y, w, h), (255, 0, 0), 1)
+        #음표에 번호 부여
         fs.put_text(image, i, (x, y - fs.weighted(20)))
 
     return image, key, beats, pitches
