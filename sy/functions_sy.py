@@ -2,10 +2,6 @@
 import cv2
 import numpy as np
 
-VERTICAL = True
-HORIZONTAL = False
-
-
 def threshold(image):
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     ret, image = cv2.threshold(image, 127, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)
@@ -13,8 +9,8 @@ def threshold(image):
 
 # standard에 따라 가중치가 곱해진 값을 리턴
 def weighted(value):
-    standard = 13
-    return int(value * (standard / 13))
+    standard = 10
+    return int(value * (standard / 10))
 
 # 닫힘 연산-객체의 끊어진 부분 연결
 def closing(image):
@@ -30,6 +26,9 @@ def put_text(image, text, loc):
 # 객체의 중간 y좌표 반환
 def get_center(y, h):
     return (y + y + h) / 2
+
+VERTICAL = True
+HORIZONTAL = False
 
 # 객체를 분류할 때 여러 특징점을 찾아내기 위해 사용
 def get_line(image, axis, axis_value, start, end, length):
@@ -53,14 +52,20 @@ def get_line(image, axis, axis_value, start, end, length):
 def stem_detection(image, stats, length):
     (x, y, w, h, area) = stats
     stems = []  # 기둥 정보 (x, y, w, h)
-    for col in range(x, x + w):
+    for col in range(x - weighted(2), x + w + weighted(2)):  # 기둥 탐지 범위 확장
         end, pixels = get_line(image, VERTICAL, col, y, y + h, length)
         if pixels:
-            if len(stems) == 0 or abs(stems[-1][0] + stems[-1][2] - col) >= 1:
+            if len(stems) == 0 or abs(stems[-1][0] + stems[-1][2] - col) >= 2:
                 (x, y, w, h) = col, end - pixels + 1, 1, pixels
                 stems.append([x, y, w, h])
             else:
                 stems[-1][2] += 1
+    """기둥의 픽셀 수 세기"""
+    # for stem in stems:
+    #     x, y, w, h = stem
+    #     cv2.putText(image, f"{h}", (x, y+h+30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (125, 125, 0), 2)
+    #     cv2.putText(image, f"{w}", (x, y+h+50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (125, 125, 0), 2)
+    
     return stems
 
 

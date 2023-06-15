@@ -9,7 +9,8 @@ def find_templates(image_path, template_folder):
     # 악보 이미지 로드
     #전처리 1. 보표 영역 추출 및 그 외 노이즈 제거
     masked_image = modules_sy.remove_noise(image)
-
+    removed_image, staves = modules_sy.remove_staves(masked_image)
+    normalized_image, staves = modules_sy.normalization(removed_image, staves, 14)
     
     # 결과를 저장할 리스트 생성
     results = []
@@ -22,10 +23,11 @@ def find_templates(image_path, template_folder):
         template_path = os.path.join(template_folder, template_file)
 
         # 템플릿 이미지 로드
-        template = cv2.imread(template_path, cv2.IMREAD_GRAYSCALE)
+        template = cv2.imread(template_path, cv2.IMREAD_ANYCOLOR)
+        template = fs.threshold(template)
 
         # 템플릿 매칭 수행
-        result = cv2.matchTemplate(masked_image, template, cv2.TM_CCOEFF_NORMED)
+        result = cv2.matchTemplate(normalized_image, template, cv2.TM_CCOEFF_NORMED)
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
 
         # 매칭 결과를 리스트에 추가
@@ -54,7 +56,8 @@ def find_templates(image_path, template_folder):
         bottom_right = (top_left[0] + template_width, top_left[1] + template_height)
 
         # 원본 이미지에 일치하는 영역 표시
-        cv2.rectangle(masked_image, top_left, bottom_right, (255, 255, 0), 2)
+        cv2.rectangle(normalized_image, top_left, bottom_right, (125, 125, 0), 2)
+
 
         # 매칭된 영역의 이미지 표시
         cv2.imshow('Matched Template: ' + template_file, template)
@@ -65,15 +68,15 @@ def find_templates(image_path, template_folder):
         print('---')
 
     # 전체 이미지에 대한 결과 출력
-    cv2.imshow('Result', masked_image)
+    cv2.imshow('Result', normalized_image)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
 # 악보 이미지 경로
-image_path = "D:\\music-sheet-algorithm\\sy\\music_sheet_jpg\\drum_sheet(45)_page_1.jpg"
+image_path = "D:\\music-sheet-algoritm\\sy\\music_sheet_jpg\\7.jpg"
 
 # 템플릿 이미지들이 있는 폴더 경로
-template_folder = "D:\\music-sheet-algorithm\\sy\\note_image_basic\\"
+template_folder = "D:\\music-sheet-algoritm\\sy\\note&rest_image\\"
 
 # 템플릿 매칭 수행 및 결과 출력
 find_templates(image_path, template_folder)
