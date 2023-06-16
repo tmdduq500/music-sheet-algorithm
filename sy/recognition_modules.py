@@ -26,7 +26,7 @@ def recognize_note(image, staff, stats, stems, direction):
         len(stems) and
         w >= fs.weighted(10) and  # 넓이 조건
         h >= fs.weighted(35) and  # 높이 조건
-        area >= fs.weighted(95)  # 픽셀 갯수 조건
+        area >= fs.weighted(150)  # 픽셀 갯수 조건
     )
     if note_condition:
         for i in range(len(stems)):
