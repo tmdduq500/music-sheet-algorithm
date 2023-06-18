@@ -28,7 +28,7 @@ def remove_staves(image):
         pixels = 0
         for col in range(width):
             pixels += (image[row][col] == 255)  # 한 행에 존재하는 흰색 픽셀의 개수를 셈
-        if pixels >= width * 0.6:  # 이미지 넓이의 50% 이상이라면
+        if pixels >= width * 0.6:  # 이미지 넓이의 60% 이상이라면
             if len(staves) == 0 or abs(staves[-1][0] + staves[-1][1] - row) > 1:  # 첫 오선이거나 이전에 검출된 오선과 다른 오선
                 staves.append([row, 0])  # 오선 추가 [오선의 y 좌표][오선 높이]
             else:  # 이전에 검출된 오선과 같은 오선
@@ -53,7 +53,6 @@ def normalization(image, staves, standard):
             staff_below = staves[line * 5 + staff + 1]
             avg_distance += abs(staff_above - staff_below)  # 오선의 간격을 누적해서 더해줌
     avg_distance /= len(staves) - lines  # 오선 간의 평균 간격
-
     height, width = image.shape  # 이미지의 높이와 넓이
     weight = standard / avg_distance  # 기준으로 정한 오선 간격을 이용해 가중치를 구함
     new_width = int(width * weight)  # 이미지의 넓이에 가중치를 곱해줌
@@ -65,6 +64,31 @@ def normalization(image, staves, standard):
 
     return image, staves
 
+# 악보 이미지 정규화(1500*2100으로 고정)
+# def normalization(image, staves, standard):
+#     avg_distance = 0
+#     lines = int(len(staves) / 5)  # 보표의 개수
+#     for line in range(lines):
+#         for staff in range(4):
+#             staff_above = staves[line * 5 + staff]
+#             staff_below = staves[line * 5 + staff + 1]
+#             avg_distance += abs(staff_above - staff_below)  # 오선의 간격을 누적해서 더해줌
+#     avg_distance /= len(staves) - lines  # 오선 간의 평균 간격
+
+#     # 이미지 크기를 목표 크기로 맞추기 위한 가중치 계산
+#     target_width = 1500
+#     target_height = 2100
+#     weight = min(target_width / image.shape[1], target_height / image.shape[0])
+
+#     new_width = int(image.shape[1] * weight)  # 가중치를 곱한 새로운 너비
+#     new_height = int(image.shape[0] * weight)  # 가중치를 곱한 새로운 높이
+
+#     image = cv2.resize(image, (new_width, new_height))  # 이미지 리사이징
+#     ret, image = cv2.threshold(image, 127, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)  # 이미지 이진화
+#     staves = [x * weight for x in staves]  # 오선 좌표에도 가중치를 곱해줌
+
+#     return image, staves
+
 # 객체 검출
 def object_detection(image, staves):
     lines = int(len(staves) / 5)  # 보표의 개수
@@ -74,10 +98,11 @@ def object_detection(image, staves):
     cnt, labels, stats, centroids = cv2.connectedComponentsWithStats(closing_image)  # 모든 객체 검출하기
     for i in range(1, cnt):
         (x, y, w, h, area) = stats[i]
+        # 객체 크기 높이 구하기
         # cv2.rectangle(image, (x, y, w, h), (255, 0, 0), 1)
         # fs.put_text(image, w, (x, y + h + 30))
         # fs.put_text(image, h, (x, y + h + 60))
-        if w >= fs.weighted(10) and h >= fs.weighted(20):  # 악보의 구성요소가 되기 위한 넓이, 높이 조건
+        if w >= fs.weighted(10) and h >= fs.weighted(10):  # 악보의 구성요소가 되기 위한 넓이, 높이 조건
             center = fs.get_center(y, h)
             for line in range(lines):
                 area_top = staves[line * 5] - fs.weighted(25)  # 위치 조건 (상단)
@@ -86,14 +111,14 @@ def object_detection(image, staves):
                     objects.append([line, (x, y, w, h, area)])  # 객체 리스트에 보표 번호와 객체의 정보(위치, 크기)를 추가
         
     objects.sort()  # 보표 번호 → x 좌표 순으로 오름차순 정렬
- 
+
     return image, objects
 
 # 객체 분석
 def object_analysis(image, objects):
     for obj in objects:
         stats = obj[1]
-        stems = fs.stem_detection(image, stats, 25)  # 객체 내의 모든 직선들을 검출함
+        stems = fs.stem_detection(image, stats, 30)  # 객체 내의 모든 직선들을 검출함
         direction = None
         if len(stems) > 0 :  # 직선이 1개 이상 존재함
             if stems[0][0] - stats[0] >= fs.weighted(5):  # 직선이 나중에 발견되면

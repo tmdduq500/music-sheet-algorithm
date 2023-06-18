@@ -69,8 +69,8 @@ def recognize_note_head(image, stem, direction):
         area_left = x - fs.weighted(16)  # 음표 머리를 탐색할 위치 (좌측)
         area_right = x  # 음표 머리를 탐색할 위치 (우측)
     else:  # 역 방향 음표
-        area_top = y - fs.weighted(12)  # 음표 머리를 탐색할 위치 (상단)
-        area_bot = y + fs.weighted(5)  # 음표 머리를 탐색할 위치 (하단)
+        area_top = y - fs.weighted(9)  # 음표 머리를 탐색할 위치 (상단)
+        area_bot = y + fs.weighted(9)  # 음표 머리를 탐색할 위치 (하단)
         area_left = x + w  # 음표 머리를 탐색할 위치 (좌측)
         area_right = x + w + fs.weighted(16)  # 음표 머리를 탐색할 위치 (우측)
 
@@ -89,8 +89,8 @@ def recognize_note_head(image, stem, direction):
             cnt_max = max(cnt_max, pixels)
             head_center += row
 
-    head_exist = (cnt >= 2 and pixel_cnt >= 50)
-    head_fill = (cnt >= 10 and cnt_max >= 12 and pixel_cnt >= 100)
+    head_exist = (cnt >= 5 and pixel_cnt >= 50)
+    head_fill = (cnt >= 10 and cnt_max >= 12 and pixel_cnt >= 150)
     head_center /= cnt
 
     return head_exist, head_fill, head_center
@@ -145,11 +145,11 @@ def recognize_note_dot(image, stem, direction, tail_cnt, stems_cnt):
 
 # 보표위 음표 위치 인식->보조선 추가
 def recognize_pitch(image, staff, head_center):
-    pitch_lines = [staff[4] + fs.weighted(30) - fs.weighted(5) * i for i in range(21)]
+    pitch_lines = [staff[4] + fs.weighted(30) - fs.weighted(5) * i for i in range(17)]
 
     for i in range(len(pitch_lines)):
         line = pitch_lines[i]
-        if line + fs.weighted(2) >= head_center >= line - fs.weighted(2):
+        if line + fs.weighted(4) >= head_center >= line - fs.weighted(4):
             return i
         
 # 쉼표 검출
@@ -160,6 +160,9 @@ def recognize_rest(image, staff, stats):
     rest_condition = staff[3]+fs.weighted(40) > center > staff[0]
 
     if rest_condition:
+        # 쉼표 크기 구하기
+        # fs.put_text(image, w, (x, y + h + fs.weighted(30)))
+        # fs.put_text(image, h, (x, y + h + fs.weighted(60)))
         if fs.weighted(40) >= h >= fs.weighted(30):
             cnt = fs.count_pixels_part(image, y, y + h, x + fs.weighted(1))
             if fs.weighted(14) >= w >= fs.weighted(10):
@@ -167,8 +170,8 @@ def recognize_rest(image, staff, stats):
             elif fs.weighted(18) >= w >= fs.weighted(14):
                 rest = 16
         
-        elif fs.weighted(23) >= h >= fs.weighted(20):
-            if fs.weighted(14) >= w >= fs.weighted(10):
+        elif fs.weighted(27) >= h >= fs.weighted(23):
+            if fs.weighted(14) >= w >= fs.weighted(12):
                 rest = 8
         elif fs.weighted(8) >= h:
             if staff[1] + fs.weighted(5) >= center >= staff[1]:
@@ -182,15 +185,6 @@ def recognize_rest(image, staff, stats):
             fs.put_text(image, -1, (x, y + h + fs.weighted(60)))
 
     return rest
-
-    # if rest_condition:
-    #     cnt = fs.count_pixels_part(image, y, y + h, x + fs.weighted(1))
-
-    #     fs.put_text(image, w, (x, y + h + fs.weighted(30)))
-    #     fs.put_text(image, h, (x, y + h + fs.weighted(60)))
-    #     fs.put_text(image, cnt, (x, y + h + fs.weighted(90)))
-
-    # pass
 
 # 쉼표 점 인식
 def recognize_rest_dot(image, stats):
@@ -216,8 +210,10 @@ def recognize_whole_note(image, staff, stats):
     pitch = 0
     (x, y, w, h, area) = stats
     while_note_condition = (
-            fs.weighted(22) >= w >= fs.weighted(12) >= h >= fs.weighted(9)
+        fs.weighted(25) >= w >= fs.weighted(23),
+        fs.weighted(15) >= h >= fs.weighted(13)
     )
+    
     if while_note_condition:
         dot_rect = (
             x + w,

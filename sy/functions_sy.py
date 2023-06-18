@@ -9,8 +9,8 @@ def threshold(image):
 
 # standard에 따라 가중치가 곱해진 값을 리턴
 def weighted(value):
-    standard = 10
-    return int(value * (standard / 10))
+    standard = 13
+    return int(value * (standard / 13))
 
 # 닫힘 연산-객체의 끊어진 부분 연결
 def closing(image):
@@ -41,7 +41,11 @@ def get_line(image, axis, axis_value, start, end, length):
         (y, x) = points[i]
         pixels += (image[y][x] == 255)  # 흰색 픽셀의 개수를 셈
         next_point = image[y + 1][x] if axis else image[y][x + 1]  # 다음 탐색할 지점
-        if next_point == 0 or i == len(points) - 1:  # 선이 끊기거나 마지막 탐색임
+
+        # 오선 제거시 음표 꼬리 픽셀이 1개씩 제거되는 경우가 있어 다다음 픽셀까지 검사
+        next_next_point = image[y + 2][x] if axis else image[y][x + 2]
+        
+        if next_point == 0 and next_next_point == 0 or i == len(points) - 1:  # 선이 끊기거나 마지막 탐색임
             if pixels >= weighted(length):
                 break  # 찾는 길이의 직선을 찾았으므로 탐색을 중지함
             else:
@@ -52,19 +56,19 @@ def get_line(image, axis, axis_value, start, end, length):
 def stem_detection(image, stats, length):
     (x, y, w, h, area) = stats
     stems = []  # 기둥 정보 (x, y, w, h)
-    for col in range(x - weighted(2), x + w + weighted(2)):  # 기둥 탐지 범위 확장
+    for col in range(x - weighted(1), x + w + weighted(1)):  # 기둥 탐지 범위 확장
         end, pixels = get_line(image, VERTICAL, col, y, y + h, length)
         if pixels:
-            if len(stems) == 0 or abs(stems[-1][0] + stems[-1][2] - col) >= 2:
+            if len(stems) == 0 or abs(stems[-1][0] + stems[-1][2] - col) >= 1:
                 (x, y, w, h) = col, end - pixels + 1, 1, pixels
                 stems.append([x, y, w, h])
             else:
                 stems[-1][2] += 1
     """기둥의 픽셀 수 세기"""
-    # for stem in stems:
-    #     x, y, w, h = stem
-    #     cv2.putText(image, f"{h}", (x, y+h+30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (125, 125, 0), 2)
-    #     cv2.putText(image, f"{w}", (x, y+h+50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (125, 125, 0), 2)
+    for stem in stems:
+        x, y, w, h = stem
+        cv2.putText(image, f"{h}", (x, y+h+30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (125, 125, 0), 2)
+        cv2.putText(image, f"{w}", (x, y+h+50), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (125, 125, 0), 2)
     
     return stems
 
