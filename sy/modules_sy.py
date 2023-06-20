@@ -102,7 +102,7 @@ def object_detection(image, staves):
         # cv2.rectangle(image, (x, y, w, h), (255, 0, 0), 1)
         # fs.put_text(image, w, (x, y + h + 30))
         # fs.put_text(image, h, (x, y + h + 60))
-        if w >= fs.weighted(10) and h >= fs.weighted(10):  # 악보의 구성요소가 되기 위한 넓이, 높이 조건
+        if w >= fs.weighted(10) and h >= fs.weighted(7):  # 악보의 구성요소가 되기 위한 넓이, 높이 조건
             center = fs.get_center(y, h)
             for line in range(lines):
                 area_top = staves[line * 5] - fs.weighted(25)  # 위치 조건 (상단)
@@ -118,7 +118,7 @@ def object_detection(image, staves):
 def object_analysis(image, objects):
     for obj in objects:
         stats = obj[1]
-        stems = fs.stem_detection(image, stats, 30)  # 객체 내의 모든 직선들을 검출함
+        stems = fs.stem_detection(image, stats, 20, 50)  # 객체 내의 모든 직선들을 검출함
         direction = None
         if len(stems) > 0 :  # 직선이 1개 이상 존재함
             if stems[0][0] - stats[0] >= fs.weighted(5):  # 직선이 나중에 발견되면
