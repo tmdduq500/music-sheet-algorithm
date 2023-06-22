@@ -99,11 +99,10 @@ def object_analysis(image, objects):
 
 def recognition(image, staves, objects):
     key = 0
-    time_signature = False
     beats = []  # 박자 리스트
     pitches = []  # 음이름 리스트
 
-    for i in range(1, len(objects)):
+    for i in range(1, len(objects)-1):
         obj = objects[i]
         line = obj[0]
         stats = obj[1]
@@ -111,27 +110,31 @@ def recognition(image, staves, objects):
         direction = obj[3]
         (x, y, w, h, area) = stats
         staff = staves[line * 5: (line + 1) * 5]
-        """음표(음정) 이전 작업
+        
         ts, key = rs.recognize_key(image, staff, stats)
         
+        # 박자표 있으면 100 표시
         if ts:
-            fs.put_text(image, key, (x,y+h+fs.weighted(20)))#20->표시하기 좋음
-        
-        rs.recognize_note(image, staff, stats, stems, direction)
-        #음표에 박스 그리기
-        cv2.rectangle(image, (x, y, w, h), (255, 0, 0), 1)
-        #음표에 번호 부여
-        fs.put_text(image, i, (x, y - fs.weighted(20)))
-        """
+            fs.put_text(image, key, (x, y + h + fs.weighted(20)))
+
         notes = rs.recognize_note(image, staff, stats, stems, direction)
         if len(notes[0]):
             for beat in notes[0]:
                 beats.append(beat)
             for pitch in notes[1]:
                 pitches.append(pitch)
+        else:
+            rest = rs.recognize_rest(image, staff, stats)
+            if rest:
+                beats.append(rest)
+                pitches.append(-1)
+            else:
+                whole_note, pitch = rs.recognize_whole_note(image, staff, stats)
+                if whole_note:
+                    beats.append(whole_note)
+                    pitches.append(pitch)
 
         cv2.rectangle(image, (x, y, w, h), (255, 0, 0), 1)
         fs.put_text(image, i, (x, y - fs.weighted(20)))
-        
+
     return image, key, beats, pitches
-    
