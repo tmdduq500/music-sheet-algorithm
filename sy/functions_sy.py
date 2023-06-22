@@ -9,8 +9,8 @@ def threshold(image):
 
 # standard에 따라 가중치가 곱해진 값을 리턴
 def weighted(value):
-    standard = 13
-    return int(value * (standard / 13))
+    standard = 10
+    return int(value * (standard / 10))
 
 # 닫힘 연산-객체의 끊어진 부분 연결
 def closing(image):
