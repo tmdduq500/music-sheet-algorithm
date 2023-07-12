@@ -8,8 +8,8 @@ def recognize_key(image, staves, stats):
         staves[0] + fs.weighted(5) >= y >= staves[0] - fs.weighted(5) and  # 상단 위치 조건
         staves[4] + fs.weighted(5) >= y + h >= staves[4] - fs.weighted(5) and  # 하단 위치 조건
         staves[2] + fs.weighted(5) >= fs.get_center(y, h) >= staves[2] - fs.weighted(5) and  # 중단 위치 조건
-        fs.weighted(20) >= w >= fs.weighted(15) and  # 넓이 조건
-        fs.weighted(50) >= h >= fs.weighted(45)  # 높이 조건
+        fs.weighted(24) >= w >= fs.weighted(18) and  # 넓이 조건
+        fs.weighted(56) >= h >= fs.weighted(50)  # 높이 조건
     )
 
     if ts_conditions:
@@ -26,7 +26,7 @@ def recognize_note(image, staff, stats, stems, direction):
         len(stems) and
         w >= fs.weighted(15) and  # 넓이 조건
         h >= fs.weighted(35) and  # 높이 조건
-        area >= fs.weighted(80)  # 픽셀 갯수 조건
+        area >= fs.weighted(95)  # 픽셀 갯수 조건
     )
     if note_condition:
         for i in range(len(stems)):
@@ -66,15 +66,15 @@ def recognize_note_head(image, stem, direction):
     (x, y, w, h) = stem
     
     if direction:  # 정 방향 음표
-        area_top = y + h - fs.weighted(10)  # 음표 머리를 탐색할 위치 (상단)
-        area_bot = y + h + fs.weighted(12)  # 음표 머리를 탐색할 위치 (하단)
+        area_top = y + h - fs.weighted(8)  # 음표 머리를 탐색할 위치 (상단)
+        area_bot = y + h + fs.weighted(10)  # 음표 머리를 탐색할 위치 (하단)
         area_left = x - fs.weighted(18)  # 음표 머리를 탐색할 위치 (좌측)
-        area_right = x + fs.weighted(2) # 음표 머리를 탐색할 위치 (우측)
+        area_right = x  # 음표 머리를 탐색할 위치 (우측)
     else:  # 역 방향 음표
-        area_top = y - fs.weighted(12)  # 음표 머리를 탐색할 위치 (상단)
-        area_bot = y + fs.weighted(10)  # 음표 머리를 탐색할 위치 (하단)
+        area_top = y - fs.weighted(10)  # 음표 머리를 탐색할 위치 (상단)
+        area_bot = y + fs.weighted(8)  # 음표 머리를 탐색할 위치 (하단)
         area_left = x + w  # 음표 머리를 탐색할 위치 (좌측)
-        area_right = x + w + fs.weighted(18)  # 음표 머리를 탐색할 위치 (우측)
+        area_right = x + w + fs.weighted(15)  # 음표 머리를 탐색할 위치 (우측)
 
     cv2.rectangle(image, (area_left, area_top, area_right - area_left, area_bot - area_top), (255, 0, 0), 1)
 
@@ -91,13 +91,15 @@ def recognize_note_head(image, stem, direction):
             cnt_max = max(cnt_max, pixels)
             head_center += row
 
-    hat_exist = (5 >= cnt >= 2 and pixel_cnt >=100)
-    head_exist = (cnt >= 10 and pixel_cnt >= 50)
-    head_fill = (cnt >= 13 and cnt_max >= 12 and pixel_cnt >= 220)
+    # fs.put_text(image, cnt, (x , y + fs.weighted(70)))
+    # fs.put_text(image, cnt_max, (x , y + fs.weighted(90)))
+    print(cnt)
+
+    head_exist = (cnt >= 6 and pixel_cnt >= 50)
+    head_fill = (cnt >= 11 and cnt_max >= 12 and pixel_cnt >= 80)
+    hat_exist = (cnt >= 2 and pixel_cnt >= 20)
     head_center /= cnt
-    # fs.put_text(image, cnt, (x - fs.weighted(10), y + h + fs.weighted(30)))
-    # fs.put_text(image, cnt_max, (x - fs.weighted(10), y + h + fs.weighted(60)))
-    # fs.put_text(image, pixel_cnt, (x - fs.weighted(10), y + h + fs.weighted(90)))
+
     return  hat_exist, head_exist, head_fill, head_center
 
 # 음표 꼬리 인식
@@ -183,6 +185,7 @@ def recognize_rest(image, staff, stats):
                 rest = 1
             elif staff[2] >= center >= staff[1] + fs.weighted(5):
                 rest = 2
+                
         if recognize_rest_dot(image, stats):
             rest *= -1
         if rest:

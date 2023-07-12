@@ -13,7 +13,7 @@ def remove_noise(image):
     for i in range(1, cnt):
         x, y, w, h, area = stats[i]
         if w > image.shape[1] * 0.5:  # 보표 영역에만
-            cv2.rectangle(mask, (x, y, w, h), (255, 0, 0), -1)  # 사각형 그리기
+            cv2.rectangle(mask, (x+50, y-10, w, h+10), (255, 0, 0), -1)  # 사각형 그리기
 
     masked_image = cv2.bitwise_and(image, mask)  # 보표 영역 추출
 
@@ -102,11 +102,11 @@ def object_detection(image, staves):
         # cv2.rectangle(image, (x, y, w, h), (255, 0, 0), 1)
         # fs.put_text(image, w, (x, y + h + 30))
         # fs.put_text(image, h, (x, y + h + 60))
-        if w >= fs.weighted(10) and h >= fs.weighted(7):  # 악보의 구성요소가 되기 위한 넓이, 높이 조건
+        if w >= fs.weighted(13) and h >= fs.weighted(5):  # 악보의 구성요소가 되기 위한 넓이, 높이 조건
             center = fs.get_center(y, h)
             for line in range(lines):
-                area_top = staves[line * 5] - fs.weighted(25)  # 위치 조건 (상단)
-                area_bot = staves[(line + 1) * 5 - 1] + fs.weighted(25)  # 위치 조건 (하단)
+                area_top = staves[line * 5] - fs.weighted(30)  # 위치 조건 (상단)
+                area_bot = staves[(line + 1) * 5 - 1] + fs.weighted(30)  # 위치 조건 (하단)
                 if area_top <= center <= area_bot:
                     objects.append([line, (x, y, w, h, area)])  # 객체 리스트에 보표 번호와 객체의 정보(위치, 크기)를 추가
         
@@ -118,7 +118,7 @@ def object_detection(image, staves):
 def object_analysis(image, objects):
     for obj in objects:
         stats = obj[1]
-        stems = fs.stem_detection(image, stats, 20, 50)  # 객체 내의 모든 직선들을 검출함
+        stems = fs.stem_detection(image, stats, 25)  # 객체 내의 모든 직선들을 검출함
         direction = None
         if len(stems) > 0 :  # 직선이 1개 이상 존재함
             if stems[0][0] - stats[0] >= fs.weighted(5):  # 직선이 나중에 발견되면
@@ -149,7 +149,7 @@ def recognition(image, staves, objects):
     beats = []  # 박자 리스트
     pitches = []  # 음이름 리스트
 
-    for i in range(1, len(objects)-1):
+    for i in range(0, len(objects)-1):
         obj = objects[i]
         line = obj[0]
         stats = obj[1]
@@ -180,7 +180,7 @@ def recognition(image, staves, objects):
                 if whole_note:
                     beats.append(whole_note)
                     pitches.append(pitch)
-
+        
         cv2.rectangle(image, (x, y, w, h), (255, 0, 0), 1)
         fs.put_text(image, i, (x, y - fs.weighted(20)))
 

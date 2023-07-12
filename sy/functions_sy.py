@@ -53,17 +53,37 @@ def get_line(image, axis, axis_value, start, end, length):
     return y if axis else x, pixels
 
 # 기둥을 검출하는 함수
-def stem_detection(image, stats, length, limit_length=None):
+# def stem_detection(image, stats, length, limit_length=None):
+#     (x, y, w, h, area) = stats
+#     stems = []  # 기둥 정보 (x, y, w, h)
+#     for col in range(x - weighted(1), x + w + weighted(1)):  # 기둥 탐지 범위 확장
+#         end, pixels = get_line(image, VERTICAL, col, y, y + h, length)
+#         if pixels and (limit_length is None or pixels <= limit_length):
+#             if len(stems) == 0 or abs(stems[-1][0] + stems[-1][2] - col) >= 1:
+#                 (x, y, w, h) = col, end - pixels + 1, 1, pixels
+#                 stems.append([x, y, w, h])
+#             else:
+#                 stems[-1][2] += 1
+                
+#     """기둥의 픽셀 수 세기"""
+#     # for stem in stems:
+#     #     x, y, w, h = stem
+#     #     cv2.putText(image, f"{h}", (x, y+h+30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (125, 125, 0), 2)
+#     #     cv2.putText(image, f"{w}", (x, y+h+50), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (125, 125, 0), 2)
+    
+#     return stems
+def stem_detection(image, stats, length):
     (x, y, w, h, area) = stats
     stems = []  # 기둥 정보 (x, y, w, h)
-    for col in range(x - weighted(1), x + w + weighted(1)):  # 기둥 탐지 범위 확장
+    for col in range(x - weighted(2), x + w + weighted(2)):
         end, pixels = get_line(image, VERTICAL, col, y, y + h, length)
-        if pixels and (limit_length is None or pixels <= limit_length):
+        if pixels:
             if len(stems) == 0 or abs(stems[-1][0] + stems[-1][2] - col) >= 1:
                 (x, y, w, h) = col, end - pixels + 1, 1, pixels
                 stems.append([x, y, w, h])
             else:
                 stems[-1][2] += 1
+
     """기둥의 픽셀 수 세기"""
     # for stem in stems:
     #     x, y, w, h = stem
@@ -71,7 +91,6 @@ def stem_detection(image, stats, length, limit_length=None):
     #     cv2.putText(image, f"{w}", (x, y+h+50), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (125, 125, 0), 2)
     
     return stems
-
 
 def count_rect_pixels(image, rect):
     x, y, w, h = rect

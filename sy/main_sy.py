@@ -6,7 +6,7 @@ import functions_sy as fs
 import modules_sy as modules_sy
 
 #이미지 불러오기
-image=cv2.imread(r"D:\music-sheet-algoritm\sy\music_sheet_jpg\1.jpg", cv2.IMREAD_ANYCOLOR)
+image=cv2.imread(r"D:\music-sheet-algoritm\sy\music_sheet_jpg\4.jpg", cv2.IMREAD_ANYCOLOR)
 
 #전처리 1. 보표 영역 추출 및 그 외 노이즈 제거
 masked_image = modules_sy.remove_noise(image)
