@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-import functions as fs
+import functions_sy as fs
 
 # 보표&노이즈 제거 
 def remove_noise(image):
@@ -11,7 +11,7 @@ def remove_noise(image):
     for i in range(1, cnt):
         x, y, w, h, area = stats[i]
         if w > image.shape[1] * 0.5:  # 보표 영역에만
-            cv2.rectangle(mask, (x, y, w, h), (255, 0, 0), -1)  # 사각형 그리기
+            cv2.rectangle(mask, (x-50, y-10, w+50, h+10), (255, 0, 0), -1)  # 사각형 그리기
 
     masked_image = cv2.bitwise_and(image, mask)  # 보표 영역 추출
 
@@ -76,8 +76,8 @@ def object_detection(image, staves):
         (x, y, w, h, area) = stats[i]
         
         # 객체 넓이 높이 확인 
-        fs.put_text(image, w, (x, y + h + 30))
-        fs.put_text(image, h, (x, y + h + 60))
+        # fs.put_text(image, w, (x, y + h + 30))
+        # fs.put_text(image, h, (x, y + h + 60))
 
         if w >= fs.weighted(10) and h >= fs.weighted(7):  # 악보의 구성요소가 되기 위한 넓이, 높이 조건
             # 객체 확인
