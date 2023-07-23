@@ -20,7 +20,13 @@ normalized_image, staves = modules_sy.normalization(removed_image, staves, 13)
 # 4. 객체 검출 과정
 obj_detection_image, objects = modules_sy.object_detection(normalized_image, staves)
 
+template_folder_path = r"D:\music-sheet-algoritm\template_sy\note_head"
+template_images = [os.path.join(template_folder_path, filename) for filename in os.listdir(template_folder_path)]
+
+# Perform template matching and draw rectangles on the original image
+image_with_rectangles = modules_sy.template_matching(obj_detection_image.copy(), template_images)
+
 #이미지 띄우기
-cv2.imshow('image', obj_detection_image)
+cv2.imshow('image', image_with_rectangles)
 cv2.waitKey(0)
 cv2.destroyAllWindows()

@@ -42,6 +42,17 @@ def remove_staves(image):
 
     return image, [x[0] for x in staves]
 
+# 오선 높이 구하기
+def staff_height(staves):
+    avg_distance = 0
+    lines = int(len(staves) / 5)  # 보표의 개수
+    for line in range(lines):
+        for staff in range(4):
+            staff_above = staves[line * 5 + staff]
+            staff_below = staves[line * 5 + staff + 1]
+            avg_distance += abs(staff_above - staff_below)  # 오선의 간격을 누적해서 더해줌
+    avg_distance /= len(staves) - lines  # 오선 간의 평균 간격
+    return avg_distance
 
 # 악보 이미지 정규화
 def normalization(image, staves, standard):
@@ -92,3 +103,30 @@ def object_detection(image, staves):
     objects.sort()  # 보표 번호 → x 좌표 순으로 오름차순 정렬
 
     return image, objects
+
+def template_matching(original_image, template_images):
+    img_gray = original_image.copy()
+    threshold = 0.70
+    matched_coordinates = []
+
+    for template_path in template_images:
+        template = cv2.imread(template_path, cv2.IMREAD_ANYCOLOR)
+        template = fs.threshold(template)
+        template = cv2.resize(template, (16, 15))
+        w, h = template.shape[::-1]
+
+        res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
+        loc = np.where(res >= threshold)
+
+        for pt in zip(*loc[::-1]):
+            # cv2.rectangle(original_image, pt, (pt[0] + w, pt[1] + h), (255, 0, 0), 2)
+            matched_coordinates.append(pt)
+
+    # Display matched coordinates as text on the original image
+    for coord in matched_coordinates:
+        x, y = coord
+        text = f"({x}, {y})"
+        cv2.putText(original_image, text, (x-20, y+50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 1, cv2.LINE_AA)
+
+    return original_image
+
