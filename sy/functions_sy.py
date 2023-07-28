@@ -43,9 +43,9 @@ def get_line(image, axis, axis_value, start, end, length):
         next_point = image[y + 1][x] if axis else image[y][x + 1]  # 다음 탐색할 지점
 
         # 오선 제거시 음표 꼬리 픽셀이 1개씩 제거되는 경우가 있어 다다음 픽셀까지 검사
-        next_next_point = image[y + 2][x] if axis else image[y][x + 2]
+        nn_point = image[y + 2][x] if axis else image[y][x + 2]
         
-        if next_point == 0 and next_next_point == 0 or i == len(points) - 1:  # 선이 끊기거나 마지막 탐색임
+        if next_point == 0 and nn_point == 0 or i == len(points) - 1:  # 선이 끊기거나 마지막 탐색임
             if pixels >= weighted(length):
                 break  # 찾는 길이의 직선을 찾았으므로 탐색을 중지함
             else:
