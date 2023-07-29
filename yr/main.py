@@ -16,7 +16,7 @@ image_6 = recognized_image
 """
 
 #이미지 불러오기
-image=cv2.imread("C:/music-sheet-algoritm/yr/music_sheet_jpg/drum_sheet(0)_page_1.jpg", cv2.IMREAD_ANYCOLOR)
+image=cv2.imread("C:/music-sheet-algoritm/yr/music_sheet_jpg/4.jpg", cv2.IMREAD_ANYCOLOR)
 
 #전처리 1. 보표 영역 추출 및 그 외 노이즈 제거-modules-fs
 masked_image = modules.remove_noise(image)
@@ -38,6 +38,6 @@ recognized_image, key, beats, pitches = modules.recognition(analyzed_image, stav
 #조표 버전= recognized_image, key, beats, pitches = modules.recognition(analyzed_image, staves, objects)  
 
 #이미지 띄우기
-cv2.imshow('image', normalized_image)
+cv2.imshow('image', recognized_image)
 cv2.waitKey(0)
 cv2.destroyAllWindows()

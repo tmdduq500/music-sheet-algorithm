@@ -98,6 +98,7 @@ def object_analysis(image, objects):
     return image, objects
 
 def recognition(image, staves, objects):
+    """
     key = 0
     beats = []  # 박자 리스트
     pitches = []  # 음이름 리스트
@@ -118,6 +119,7 @@ def recognition(image, staves, objects):
             fs.put_text(image, key, (x, y + h + fs.weighted(20)))
 
         notes = rs.recognize_note(image, staff, stats, stems, direction)
+        
         if len(notes[0]):
             for beat in notes[0]:
                 beats.append(beat)
@@ -133,6 +135,27 @@ def recognition(image, staves, objects):
                 if whole_note:
                     beats.append(whole_note)
                     pitches.append(pitch)
+
+        cv2.rectangle(image, (x, y, w, h), (255, 0, 0), 1)
+        fs.put_text(image, i, (x, y - fs.weighted(20)))
+
+    return image, key, beats, pitches
+    """
+    key = 0
+    time_signature = False
+    beats = []  # 박자 리스트
+    pitches = []  # 음이름 리스트
+
+    for i in range(1, len(objects)):
+        obj = objects[i]
+        line = obj[0]
+        stats = obj[1]
+        stems = obj[2]
+        direction = obj[3]
+        (x, y, w, h, area) = stats
+        staff = staves[line * 5: (line + 1) * 5]
+        
+        rs.recognize_note(image, staff, stats, stems, direction)
 
         cv2.rectangle(image, (x, y, w, h), (255, 0, 0), 1)
         fs.put_text(image, i, (x, y - fs.weighted(20)))

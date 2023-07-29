@@ -20,6 +20,7 @@ def recognize_key(image, staves, stats):
 
 #음표 인식 함수
 def recognize_note(image, staff, stats, stems, direction):
+    """
     (x, y, w, h, area) = stats
     notes = []
     pitches = []
@@ -59,9 +60,25 @@ def recognize_note(image, staff, stats, stems, direction):
                         fs.put_text(image, pitch, (stem[0] - fs.weighted(10), stem[1] + stem[3] + fs.weighted(60)))
                         break
 
-    return notes, pitches
+    return notes, pitches"""
+    (x, y, w, h, area) = stats
+    notes = []
+    pitches = []
+    note_condition = (
+        len(stems) and
+        w >= fs.weighted(10) and  # 넓이 조건
+        h >= fs.weighted(30) and  # 높이 조건
+        area >= fs.weighted(90)  # 픽셀 갯수 조건
+    )
+    if note_condition:
+        for i in range(len(stems)):
+            stem = stems[i]
+            recognize_note_head(image, stem, direction)
+
+    pass
 
 def recognize_note_head(image, stem, direction):
+    
     (x, y, w, h) = stem
     if direction:  # 정 방향 음표
         area_top = y + h - fs.weighted(7)  # 음표 머리를 탐색할 위치 (상단)
@@ -74,8 +91,24 @@ def recognize_note_head(image, stem, direction):
         area_left = x + w  # 음표 머리를 탐색할 위치 (좌측)
         area_right = x + w + fs.weighted(14)  # 음표 머리를 탐색할 위치 (우측)
 
-    #cv2.rectangle(image, (area_left, area_top, area_right - area_left, area_bot - area_top), (255, 0, 0), 1)
-    #pass
+    cv2.rectangle(image, (area_left, area_top, area_right - area_left, area_bot - area_top), (255, 0, 0), 1)
+
+    pass
+    """
+    (x, y, w, h) = stem
+    if direction:  # 정 방향 음표
+        area_top = y + h - fs.weighted(7)  # 음표 머리를 탐색할 위치 (상단)
+        area_bot = y + h + fs.weighted(7)  # 음표 머리를 탐색할 위치 (하단)
+        area_left = x - fs.weighted(14)  # 음표 머리를 탐색할 위치 (좌측)
+        area_right = x  # 음표 머리를 탐색할 위치 (우측)
+    else:  # 역 방향 음표
+        area_top = y - fs.weighted(7)  # 음표 머리를 탐색할 위치 (상단)
+        area_bot = y + fs.weighted(7)  # 음표 머리를 탐색할 위치 (하단)
+        area_left = x + w  # 음표 머리를 탐색할 위치 (좌측)
+        area_right = x + w + fs.weighted(14)  # 음표 머리를 탐색할 위치 (우측)
+
+    cv2.rectangle(image, (area_left, area_top, area_right - area_left, area_bot - area_top), (255, 0, 0), 1)
+    pass
     cnt = 0  # cnt = 끊기지 않고 이어져 있는 선의 개수를 셈
     cnt_max = 0  # cnt_max = cnt 중 가장 큰 값
     head_center = 0
@@ -96,8 +129,7 @@ def recognize_note_head(image, stem, direction):
     if cnt!=0:
         head_center /= cnt
 
-    return head_exist, head_fill, head_center
-
+    return head_exist, head_fill, head_center"""
 
 def recognize_note_tail(image, index, stem, direction):
     (x, y, w, h) = stem
