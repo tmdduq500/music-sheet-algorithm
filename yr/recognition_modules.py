@@ -20,48 +20,25 @@ def recognize_key(image, staves, stats):
 
 #음표 인식 함수
 def recognize_note(image, staff, stats, stems, direction):
+
     (x, y, w, h, area) = stats
     notes = []
     pitches = []
     note_condition = (
-            len(stems) and
-            w >= fs.weighted(10) and  # 넓이 조건
-            h >= fs.weighted(35) and  # 높이 조건
-            area >= fs.weighted(95)  # 픽셀 갯수 조건
+        len(stems) and
+        w >= fs.weighted(10) and  # 넓이 조건
+        h >= fs.weighted(30) and  # 높이 조건
+        area >= fs.weighted(90)  # 픽셀 갯수 조건
     )
     if note_condition:
         for i in range(len(stems)):
             stem = stems[i]
-            head_exist, head_fill, head_center = recognize_note_head(image, stem, direction)
-            if head_exist:
-                tail_cnt = recognize_note_tail(image, i, stem, direction)
-                dot_exist = recognize_note_dot(image, stem, direction, len(stems), tail_cnt)
-                note_classification = (
-                    ((not head_fill and tail_cnt == 0 and not dot_exist), 2),
-                    ((not head_fill and tail_cnt == 0 and dot_exist), -2),
-                    ((head_fill and tail_cnt == 0 and not dot_exist), 4),
-                    ((head_fill and tail_cnt == 0 and dot_exist), -4),
-                    ((head_fill and tail_cnt == 1 and not dot_exist), 8),
-                    ((head_fill and tail_cnt == 1 and dot_exist), -8),
-                    ((head_fill and tail_cnt == 2 and not dot_exist), 16),
-                    ((head_fill and tail_cnt == 2 and dot_exist), -16),
-                    ((head_fill and tail_cnt == 3 and not dot_exist), 32),
-                    ((head_fill and tail_cnt == 3 and dot_exist), -32)
-                )
+            recognize_note_head(image, stem, direction)
 
-                for j in range(len(note_classification)):
-                    if note_classification[j][0]:
-                        note = note_classification[j][1]
-                        pitch = recognize_pitch(image, staff, head_center)
-                        notes.append(note)
-                        pitches.append(pitch)
-                        fs.put_text(image, note, (stem[0] - fs.weighted(10), stem[1] + stem[3] + fs.weighted(30)))
-                        fs.put_text(image, pitch, (stem[0] - fs.weighted(10), stem[1] + stem[3] + fs.weighted(60)))
-                        break
-
-    return notes, pitches
+    pass
 
 def recognize_note_head(image, stem, direction):
+    
     (x, y, w, h) = stem
     if direction:  # 정 방향 음표
         area_top = y + h - fs.weighted(7)  # 음표 머리를 탐색할 위치 (상단)
@@ -74,8 +51,8 @@ def recognize_note_head(image, stem, direction):
         area_left = x + w  # 음표 머리를 탐색할 위치 (좌측)
         area_right = x + w + fs.weighted(14)  # 음표 머리를 탐색할 위치 (우측)
 
-    #cv2.rectangle(image, (area_left, area_top, area_right - area_left, area_bot - area_top), (255, 0, 0), 1)
-    #pass
+    cv2.rectangle(image, (area_left, area_top, area_right - area_left, area_bot - area_top), (255, 0, 0), 1)
+    pass
     cnt = 0  # cnt = 끊기지 않고 이어져 있는 선의 개수를 셈
     cnt_max = 0  # cnt_max = cnt 중 가장 큰 값
     head_center = 0
@@ -97,7 +74,6 @@ def recognize_note_head(image, stem, direction):
         head_center /= cnt
 
     return head_exist, head_fill, head_center
-
 
 def recognize_note_tail(image, index, stem, direction):
     (x, y, w, h) = stem
