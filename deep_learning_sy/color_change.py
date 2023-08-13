@@ -2,7 +2,7 @@ import os
 import cv2
 
 # 입력 폴더 경로 설정
-input_folder = r'D:\music-sheet-algoritm\easy_staff_img'
+input_folder = r'D:\music-sheet-algoritm\easy_staff_color\not_color'
 
 # 출력 폴더 경로 설정
 output_folder = r'D:\music-sheet-algoritm\easy_staff_color'

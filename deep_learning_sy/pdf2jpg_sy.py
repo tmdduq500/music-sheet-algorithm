@@ -45,8 +45,8 @@ def convert_pdfs_to_jpgs(input_folder, output_folder):
             pdf_to_jpg(pdf_path, output_folder)
 
 # 입력 폴더와 출력 폴더 경로 설정
-input_folder = r"D:\music-sheet-algoritm\deep_learning_sy\drum_sheet_pdf\easy_sheet"
-output_folder = r"D:\music-sheet-algoritm\deep_learning_sy\easy_drum_jpg"
+input_folder = r"D:\music-sheet-algoritm"
+output_folder = r"D:\music-sheet-algoritm"
 
 # 폴더 내의 PDF 파일들을 JPG로 변환
 convert_pdfs_to_jpgs(input_folder, output_folder)

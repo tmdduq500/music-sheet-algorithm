@@ -6,10 +6,10 @@ import functions as fs
 import modules as modules_sy
 
 # 악보 이미지들이 들어있는 폴더 경로
-input_folder = r"D:\music-sheet-algoritm\easy_drum_img"
+input_folder = r"D:\music-sheet-algoritm\deep_learning_sy\dd"
 
 # 보표 추출한 이미지들을 저장할 폴더 경로
-output_folder = r"D:\music-sheet-algoritm\easy_staff_img"
+output_folder = r"D:\music-sheet-algoritm\easy_drum_img"
 
 # 보표 추출 작업
 def extract_symbols_from_images(input_folder, output_folder):
