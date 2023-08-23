@@ -94,12 +94,14 @@ def object_detection(image, staves):
     lines = int(len(staves) / 5)  # 보표의 개수
     objects = []  # 구성요소 정보가 저장될 리스트
 
+    orgin_image =cv2.imread(r"D:\music-sheet-algoritm\sy\music_sheet_jpg\6.jpg", cv2.IMREAD_ANYCOLOR)
+
     closing_image = fs.closing(image)
     cnt, labels, stats, centroids = cv2.connectedComponentsWithStats(closing_image)  # 모든 객체 검출하기
     for i in range(1, cnt):
         (x, y, w, h, area) = stats[i]
         # 객체 크기 높이 구하기
-        # cv2.rectangle(image, (x, y, w, h), (255, 0, 0), 1)
+        cv2.rectangle(orgin_image, (x, y, w, h), (255, 0, 0), 1)
         # fs.put_text(image, w, (x, y + h + 30))
         # fs.put_text(image, h, (x, y + h + 60))
         if w >= fs.weighted(13) and h >= fs.weighted(5):  # 악보의 구성요소가 되기 위한 넓이, 높이 조건
@@ -112,7 +114,7 @@ def object_detection(image, staves):
         
     objects.sort()  # 보표 번호 → x 좌표 순으로 오름차순 정렬
 
-    return image, objects
+    return orgin_image, objects
 
 # 객체 분석
 def object_analysis(image, objects):
