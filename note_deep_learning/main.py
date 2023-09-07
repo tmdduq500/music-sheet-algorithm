@@ -3,6 +3,7 @@ import os
 import functions as fs
 import modules
 import glob
+import DrumNote_CNN
 
 # 이미지 불러오기
 resource_path = os.getcwd() + "/drum_sheet/"
@@ -14,7 +15,7 @@ image_files = glob.glob(resource_path + "*.jpg")
 for image_file in image_files:
 
     origin_image = cv2.imread(image_file)
-
+    origin_image = cv2.resize(origin_image, (2480,3509))
     # 1. 보표 영역 추출 및 그 외 노이즈 제거
     image_1 = modules.remove_noise(origin_image)
     # 2. 오선 제거
@@ -41,3 +42,6 @@ for image_file in image_files:
         modules.obj_detection_cnn(staff_image)
     else:
         print(f"Folder '{image_folder_name}' already exists. Skipping processing for this image.")
+
+# 예측 및 txt파일 결과 출력
+DrumNote_CNN.run_drum_note_cnn()
